@@ -12,7 +12,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "ExamPlan: daily study plans for law and IR exams",
   description:
-    "ExamPlan helps IE law and international relations students turn exams into daily study plans so they can stop last-minute cramming.",
+    "ExamPlan helps IE law and IR students turn exams into daily study plans so they can stop last-minute cramming.",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
