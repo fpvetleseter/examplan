@@ -15,3 +15,13 @@ Evidence log entries need date, environment, exact command/action, outcome and u
 - Local `next start` with a dummy public URL (no real project): security headers present on every route; `/app` anonymous → 307 `/login` with `Cache-Control: private, no-store`; pages served `private, no-store`; unknown route 404.
 - Screenshots (not committed) of `/`, `/signup`, `/login` at 375×812 and 1280×900 inspected: no horizontal overflow, CTA and audience visible. `/app` states not yet inspected (needs a real session).
 - Not done: migrations 0001/0002 not executed; no real signup, login, save, isolation or anonymous-denial check has run. Milestones 2–4 "Done" criteria are NOT met until those pass.
+
+### 2026-10-19 · local dev server http://localhost:3000 against the real Supabase project (migrations 0001+0002 applied by owner)
+- First `npm run test:rls`: exit 1, `AuthApiError: Invalid login credentials` (QA account A did not exist yet with that password). First `npm run test:e2e`: exit 1 at contract.spec.ts:16; signup alert "An account with this email already exists": a pre-existing account, not an app defect. Owner reset the QA accounts.
+- `npm run test:e2e`: exit 0, 1 passed (signup → /app, title-only save, refresh persistence, logout visible on /, /signup, /login, /app, logout protects /app, wrong password shows alert and stays on /login, clean-context login restores marker, B isolation, 375px no overflow).
+- `npm run test:rls`: exit 0, "PASS: direct user-scoped RLS boundary checks" (anon read/write denied, B select/update/delete of A's row affects nothing, forged owner insert rejected, owner reassignment rejected, own update works).
+- `node scripts/verify.mjs`: exit 1. Lint/typecheck/unit/build pass, then E2E signup fails because the same QA emails are now registered. verify needs never-used QA emails on every run; it has not passed end-to-end.
+- Fixed: dev console error "Date.now() while prerendering" on / and /app for signed-in users (getVerifiedUser now awaits connection()). Fixed: duplicate "Build study plan" button names with the plan panel open.
+- After fixes: lint, typecheck, test (28), build, test:rls all exit 0. Manual browser run (dev): no console errors on /, /signup, /login, /app; save + delete work; after logout /app → /login and Back shows 0 core-item. E2E not rerun after fixes (needs fresh accounts).
+- Signed-in /app screenshots at 375px and 1280px (plan open, long title, edit panel) inspected: no horizontal overflow, long title wraps. Screenshots kept outside the repo.
+- Not run: anything against the public production URL. Production acceptance (AGENTS.md Completion) still pending.
