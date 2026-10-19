@@ -1,0 +1,14 @@
+import {readFileSync,existsSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const required=['CLAUDE.md','AGENTS.md','PRD.md','tasks/PLAN.md','tasks/STATUS.md','supabase/migrations/0001_exams.sql','.env.example','.gitignore','docs/ACCEPTANCE.md','docs/START-HERE.md','scripts/verify.mjs','tests/contract.spec.ts','tests/rls.mjs'];
+for(const file of required) if(!existsSync(file)) throw Error(`Missing ${file}`);
+const text=readFileSync('CLAUDE.md','utf8');
+const end=text.indexOf('\n\n# Project rules');
+if(end<0) throw Error('Missing project boundary');
+const actual=createHash('sha256').update(text.slice(0,end)).digest('hex');
+if(actual!==readFileSync('docs/contract.sha256','utf8').trim()) throw Error('Grading contract changed');
+if(!text.includes('@AGENTS.md')) throw Error('Missing explicit rules import');
+const sql=readFileSync('supabase/migrations/0001_exams.sql','utf8');
+for(const token of ['enable row level security','exams_select_own','exams_insert_own','exams_update_own','exams_delete_own','to authenticated','auth.uid()']) if(!sql.includes(token)) throw Error(`SQL missing ${token}`);
+if(!readFileSync('.gitignore','utf8').includes('.env*')) throw Error('Environment files not ignored');
+console.log('PASS: scaffold integrity only. No application/auth/RLS behavior has been tested.');
