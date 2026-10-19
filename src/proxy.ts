@@ -24,9 +24,26 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // Verifies the JWT and refreshes the session cookies. No redirects yet.
-  await supabase.auth.getClaims();
+  // Verifies the JWT and refreshes the session cookies.
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = typeof data?.claims?.sub === "string";
+  const path = request.nextUrl.pathname;
 
+  const redirectTo = !signedIn && (path === "/app" || path.startsWith("/app/"))
+    ? "/login"
+    : signedIn && (path === "/login" || path === "/signup")
+      ? "/app"
+      : null;
+
+  if (redirectTo) {
+    const redirect = NextResponse.redirect(new URL(redirectTo, request.url));
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    redirect.headers.set("Cache-Control", "private, no-store");
+    return redirect;
+  }
+
+  // Private pages must never be stored by shared caches or the back/forward cache.
+  if (path === "/app" || path.startsWith("/app/")) response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
 

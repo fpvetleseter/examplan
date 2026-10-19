@@ -3,8 +3,9 @@ import { cookies } from "next/headers";
 import { getSupabaseEnv } from "./env";
 
 export async function createClient() {
-  const { url, publishableKey } = getSupabaseEnv();
+  // Read the request first: during prerender this defers the component to request time.
   const cookieStore = await cookies();
+  const { url, publishableKey } = getSupabaseEnv();
 
   return createServerClient(url, publishableKey, {
     cookies: {
