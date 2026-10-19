@@ -1,0 +1,16 @@
+.env*
+!.env.example
+CLAUDE.local.md
+node_modules/
+.next/
+out/
+dist/
+.vercel/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+*.log
+*.pem
+*.key
+.DS_Store
