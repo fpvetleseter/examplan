@@ -2,6 +2,7 @@
 
 import { formatDisplayDate, localToday } from "@/lib/dates";
 import type { ExamDetails } from "@/lib/exams/types";
+import { planExplanation } from "@/lib/plan/explain";
 import { parseTopics, validatePlan, type Session } from "@/lib/plan/generate";
 
 const primaryBtn =
@@ -116,10 +117,7 @@ export function PlanView({
         ))}
       </ol>
 
-      <p className="mt-3 text-sm text-stone-600">
-        How this works: topics are spread evenly in the order you listed them, and the last day before the exam is kept for review.
-        It doesn&apos;t know how hard each topic is or what your course covers.
-      </p>
+      <p className="mt-3 text-sm text-stone-600">{planExplanation(topicCount)}</p>
       <div className="mt-3">{buildButton("Rebuild plan")}</div>
     </section>
   );
