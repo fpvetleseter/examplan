@@ -22,6 +22,12 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.auth.signOut();
   const response = NextResponse.redirect(new URL(error ? "/login?signout=incomplete" : "/", request.url), 303);
   pending.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+  if (error) {
+    // Never leave this device signed in, even if the auth server could not be reached.
+    request.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith("sb-")) response.cookies.set(name, "", { path: "/", maxAge: 0 });
+    });
+  }
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
