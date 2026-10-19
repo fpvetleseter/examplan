@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import {
   CONFIRMATION_REQUIRED_MESSAGE,
   loginErrorMessage,
@@ -14,6 +14,13 @@ type Mode = "signup" | "login";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PASSWORD_MIN = 6;
+const SLOW_MS = 8000;
+
+const slowMessage = {
+  signup:
+    "Creating your account is taking longer than usual. You can try again: if the account was already created, you'll be told to log in instead, so no duplicate is made.",
+  login: "Logging in is taking longer than usual. Check your connection and try again.",
+} as const;
 
 const copy = {
   signup: {
@@ -40,11 +47,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Only the latest attempt may update the form; a slow earlier one can still finish and navigate.
+  const attempt = useRef(0);
+  // Synchronous guard: a double click can submit twice before the disabled state renders.
+  const inFlight = useRef(false);
   const t = copy[mode];
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (inFlight.current) return;
     const trimmed = email.trim();
     if (!EMAIL.test(trimmed)) {
       setError("Enter a valid email address, like name@student.ie.edu.");
@@ -59,8 +70,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
+    const current = ++attempt.current;
+    inFlight.current = true;
     setPending(true);
     setError(null);
+    const slow = window.setTimeout(() => {
+      if (attempt.current !== current) return;
+      attempt.current++;
+      inFlight.current = false;
+      setError(slowMessage[mode]);
+      setPending(false);
+    }, SLOW_MS);
     try {
       // Called from the browser so Supabase rate limits apply to the real user's IP.
       const supabase = createClient();
@@ -68,20 +88,23 @@ export function AuthForm({ mode }: { mode: Mode }) {
         mode === "signup"
           ? await supabase.auth.signUp({ email: trimmed, password })
           : await supabase.auth.signInWithPassword({ email: trimmed, password });
-      if (error) {
-        setError(mode === "signup" ? signupErrorMessage(error) : loginErrorMessage(error));
-        setPending(false);
+      window.clearTimeout(slow);
+      if (!error && data.session) {
+        // A real session, even from a slow attempt, is a successful sign-in.
+        // Full navigation so the server re-renders the header and /app with the new session cookies.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/app");
         return;
       }
-      if (!data.session) {
-        setError(mode === "signup" ? CONFIRMATION_REQUIRED_MESSAGE : loginErrorMessage(null));
-        setPending(false);
-        return;
-      }
-      // Full navigation so the server re-renders the header and /app with the new session cookies.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign("/app");
+      if (attempt.current !== current) return;
+      inFlight.current = false;
+      if (error) setError(mode === "signup" ? signupErrorMessage(error) : loginErrorMessage(error));
+      else setError(mode === "signup" ? CONFIRMATION_REQUIRED_MESSAGE : loginErrorMessage(null));
+      setPending(false);
     } catch {
+      window.clearTimeout(slow);
+      if (attempt.current !== current) return;
+      inFlight.current = false;
       setError(NETWORK_MESSAGE);
       setPending(false);
     }
