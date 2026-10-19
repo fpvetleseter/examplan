@@ -136,7 +136,7 @@ export function ExamRow({
           aria-expanded={panel === "plan"}
           onClick={() => (panel === "plan" ? close("plan") : open("plan"))}
         >
-          {exam.plan_version !== null ? "Open study plan" : "Build study plan"}
+          {panel === "plan" ? "Hide study plan" : exam.plan_version !== null ? "Open study plan" : "Build study plan"}
         </button>
         {!confirmDelete && (
           <button type="button" className={`${secondaryBtn} text-red-800`} onClick={() => setConfirmDelete(true)}>
