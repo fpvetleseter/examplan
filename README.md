@@ -2,7 +2,7 @@
 
 ExamPlan helps IE law and IR students turn exams into daily study plans so they can stop last-minute cramming.
 
-Live app: https://examplan-kappa.vercel.app
+Live app: https://ferdinandvetleseter.vercel.app
 
 ## What it does
 - Sign up and log in with email and password (Supabase Auth, no confirmation email).
