@@ -33,8 +33,8 @@ async function HeroAction() {
 
 const steps = [
   ["Save an exam", "Just the name is enough. We start you with a date in 14 days and 30 minutes a day."],
-  ["Set date and topics", "Change the date and daily minutes, and list your topics one per line."],
-  ["Build a study plan", "Get a day-by-day template with a final review day. Rebuild it whenever things change."],
+  ["Add date and syllabus", "Set the date and daily minutes, then paste or upload your syllabus (or list topics) and pick the sessions the exam covers."],
+  ["Build a study plan", "Get a day-by-day plan with practice in your exam's format and a light final review. Rebuild it whenever things change."],
 ];
 
 export default function Home() {
@@ -49,8 +49,8 @@ export default function Home() {
 
         <div className="glass mt-10 max-w-2xl p-6 sm:p-8">
           <p className="text-lg leading-relaxed text-ink">
-            Midterms, unread IR readings and a part-time job? Save your exams, set the date, your daily study time and topics, and
-            ExamPlan lays out what to study each day until the exam. No uploads, no onboarding, no AI key.
+            Midterms, unread IR readings and a part-time job? Save your exams, set the date and your daily study time, add your
+            syllabus or a list of topics, and ExamPlan lays out what to study each day until the exam. No onboarding, no AI key.
           </p>
           <div className="mt-6">
             <Suspense fallback={<SignupCta />}>
@@ -101,8 +101,8 @@ export default function Home() {
             </ul>
           </div>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">
-            Plans are a simple, transparent template built from what you enter. ExamPlan doesn&apos;t know your professor or readings, and it
-            won&apos;t pretend to.
+            Plans are a simple, transparent schedule built only from what you enter or paste. ExamPlan doesn&apos;t know what your professor
+            will ask, and it won&apos;t pretend to.
           </p>
         </section>
       </main>
