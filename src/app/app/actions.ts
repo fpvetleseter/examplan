@@ -4,6 +4,10 @@ import { isIsoDate, daysBetween, formatIsoDate } from "@/lib/dates";
 import { DETAIL_COLUMNS, SUMMARY_COLUMNS, type ActionResult, type ExamDetails, type ExamSummary } from "@/lib/exams/types";
 import { isUuid, validateExamUpdate, validateNewExam } from "@/lib/exams/validation";
 import { buildPlan } from "@/lib/plan/generate";
+import { planInputsFromExam, syllabusPlanInput } from "@/lib/plan/inputs";
+import { extractSyllabusText } from "@/lib/syllabus/extract";
+import { parseSyllabus, type ParseResult } from "@/lib/syllabus/parse";
+import { validateSyllabus } from "@/lib/syllabus/validation";
 import { getVerifiedUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -104,6 +108,63 @@ export async function updateExam(input: unknown, expectedUpdatedAt: unknown): Pr
   }
 }
 
+/** Extracts text from an uploaded syllabus and parses it. Nothing is stored until saveSyllabus. */
+export async function readSyllabusFile(form: FormData): Promise<ActionResult<{ text: string } & ParseResult>> {
+  try {
+    if (!(await getVerifiedUser())) return AUTH_ERROR;
+    const text = await extractSyllabusText(form.get("file"));
+    if (!text.ok) return { ok: false, code: "invalid", error: text.error };
+    return { ok: true, data: { text: text.value, ...parseSyllabus(text.value) } };
+  } catch {
+    return { ok: false, code: "server", error: "We couldn't read this file. Try again, or paste the text instead." };
+  }
+}
+
+export async function saveSyllabus(input: unknown, expectedUpdatedAt: unknown): Promise<ActionResult<ExamDetails>> {
+  try {
+    const parsed = validateSyllabus(input);
+    if (!parsed.ok) return { ok: false, code: "invalid", error: parsed.error };
+    if (typeof expectedUpdatedAt !== "string") return { ok: false, code: "invalid", error: "Reload and try again." };
+    const ctx = await authed();
+    if (!ctx) return AUTH_ERROR;
+    const { id, text, sessions, scopeEnd, examType, durationMinutes, openBook, professorNote } = parsed.value;
+
+    const current = await ctx.supabase.from("exams").select(DETAIL_COLUMNS).eq("id", id).maybeSingle<ExamDetails>();
+    if (current.error) return dbFailure(current.error);
+    if (!current.data) return NOT_FOUND;
+    if (current.data.updated_at !== expectedUpdatedAt) {
+      return { ok: false, code: "conflict", error: "This exam changed in another tab. Your edits are still here; saving again will replace those other changes.", data: current.data };
+    }
+
+    const patch = {
+      syllabus_text: text,
+      syllabus_sessions: sessions,
+      scope_end: scopeEnd,
+      exam_type: examType,
+      exam_duration_minutes: durationMinutes,
+      open_book: openBook,
+      professor_note: professorNote,
+    };
+    const next = { ...current.data, ...patch };
+    const planChanged = JSON.stringify(syllabusPlanInput(current.data) ?? null) !== JSON.stringify(syllabusPlanInput(next) ?? null);
+    // A plan built from old sessions or format must never be shown as current.
+    const update: Record<string, unknown> = planChanged ? { ...patch, study_plan: null } : patch;
+
+    const { data, error } = await ctx.supabase
+      .from("exams")
+      .update(update)
+      .eq("id", id)
+      .eq("updated_at", expectedUpdatedAt)
+      .select(DETAIL_COLUMNS)
+      .maybeSingle<ExamDetails>();
+    if (error) return dbFailure(error);
+    if (!data) return { ok: false, code: "conflict", error: "This exam changed in another tab. Reload it and save again." };
+    return { ok: true, data };
+  } catch {
+    return SERVER_ERROR;
+  }
+}
+
 export async function deleteExam(id: unknown): Promise<ActionResult<{ id: string }>> {
   try {
     if (!isUuid(id)) return NOT_FOUND;
@@ -134,10 +195,7 @@ export async function generatePlan(id: unknown, today: unknown, expectedUpdatedA
       return { ok: false, code: "conflict", error: CONFLICT, data: exam };
     }
 
-    const built = buildPlan(
-      { title: exam.title, examDate: exam.exam_date, dailyMinutes: exam.daily_minutes, topics: exam.topics, today },
-      new Date().toISOString(),
-    );
+    const built = buildPlan(planInputsFromExam(exam, today), new Date().toISOString());
     // Generation failure leaves the exam and any previous plan untouched.
     if (!built.ok) return { ok: false, code: "invalid", error: built.error, data: exam };
 

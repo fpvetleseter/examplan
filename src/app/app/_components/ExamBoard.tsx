@@ -44,7 +44,7 @@ export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
       setExams((list) => [saved, ...list.filter((e) => e.id !== saved.id)]);
       setTitle("");
       attemptId.current = null;
-      setStatus(`Saved “${saved.title}”.`);
+      setStatus(`Saved “${saved.title}”. Next: set its date and topics.`);
     } catch {
       setError({ message: "We couldn't reach the server. Your exam name is still here, so try again." });
     } finally {
@@ -52,10 +52,15 @@ export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
     }
   }
 
+  const first = exams.length === 0;
+
   return (
     <>
-      <form onSubmit={onSubmit} noValidate className="glass mt-6 p-5 sm:p-6">
-        <h2 className="text-2xl text-ink">{exams.length === 0 ? "Add your first exam" : "Add an exam"}</h2>
+      {first && (
+        <p className="mt-4 text-lg text-ink">Start with one exam: type its name, then add the date, syllabus or topics.</p>
+      )}
+      <form onSubmit={onSubmit} noValidate className={`glass p-5 sm:p-6 ${first ? "mt-4" : "mt-6"}`}>
+        <h2 className="text-2xl text-ink">{first ? "Your first exam" : "Add an exam"}</h2>
         <label htmlFor="exam-title" className="mt-4 block text-sm font-semibold text-ink">
           Exam name
         </label>
@@ -80,7 +85,7 @@ export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
             aria-busy={pending}
             className="btn btn-primary min-h-12 shrink-0 px-5 text-base"
           >
-            {pending ? "Saving…" : "Save exam"}
+            {pending ? "Saving…" : first ? "Add your first exam" : "Save exam"}
           </button>
         </div>
         <p id="exam-title-hint" className="mt-2 text-sm leading-relaxed text-muted">
@@ -103,9 +108,7 @@ export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
         </p>
       </form>
 
-      {exams.length === 0 ? (
-        <p className="mt-6 text-muted">No exams yet. Add one above to get started.</p>
-      ) : (
+      {!first && (
         <ul className="mt-8 space-y-4" aria-label="Saved exams">
           {exams.map((exam) => (
             <ExamRow

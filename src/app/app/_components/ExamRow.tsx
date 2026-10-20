@@ -7,8 +7,10 @@ import type { ExamDetails, ExamSummary } from "@/lib/exams/types";
 import { deleteExam, generatePlan, getExamDetails } from "../actions";
 import { ExamEditor } from "./ExamEditor";
 import { PlanView } from "./PlanView";
+import { SyllabusPanel } from "./SyllabusPanel";
+import { readSessions } from "@/lib/syllabus/validation";
 
-type Panel = "edit" | "plan" | null;
+type Panel = "edit" | "syllabus" | "plan" | null;
 type Notice = { message: string; auth?: boolean } | null;
 
 function toSummary(d: ExamDetails, prev: ExamSummary): ExamSummary {
@@ -20,10 +22,12 @@ function toSummary(d: ExamDetails, prev: ExamSummary): ExamSummary {
     daily_minutes: d.daily_minutes,
     updated_at: d.updated_at,
     plan_version: typeof version === "number" ? version : null,
+    syllabus_first: readSessions(d.syllabus_sessions)[0]?.title ?? null,
   };
 }
 
 const secondaryBtn = "btn btn-secondary px-3 text-sm";
+const primaryBtn = "btn btn-primary px-3 text-sm";
 
 export function ExamRow({
   exam,
@@ -42,7 +46,9 @@ export function ExamRow({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const editBtn = useRef<HTMLButtonElement>(null);
+  const syllabusBtn = useRef<HTMLButtonElement>(null);
   const planBtn = useRef<HTMLButtonElement>(null);
+  const focusTargets = { edit: editBtn, syllabus: syllabusBtn, plan: planBtn };
 
   function applyDetails(d: ExamDetails) {
     setDetails(d);
@@ -53,7 +59,7 @@ export function ExamRow({
     setNotice(null);
     setPanel(next);
     // The editor seeds its fields on mount, so make sure it mounts with fresh data.
-    if (next === "edit") setDetails(null);
+    if (next !== "plan") setDetails(null);
     setLoading(true);
     try {
       const result = await getExamDetails(exam.id);
@@ -66,10 +72,10 @@ export function ExamRow({
     }
   }
 
-  function close(focus: "edit" | "plan") {
+  function close(focus: Exclude<Panel, null>) {
     setPanel(null);
     setNotice(null);
-    (focus === "edit" ? editBtn : planBtn).current?.focus();
+    focusTargets[focus].current?.focus();
   }
 
   async function build() {
@@ -107,6 +113,10 @@ export function ExamRow({
   }
 
   const headingId = `exam-${exam.id}`;
+  // One primary next step: details first, then build, then the plan itself.
+  const step: Exclude<Panel, null> =
+    exam.plan_version !== null ? "plan" : exam.updated_at === exam.created_at ? "edit" : "plan";
+  const style = (p: Exclude<Panel, null>) => (step === p && panel !== p ? primaryBtn : secondaryBtn);
 
   return (
     <li data-testid="core-item" aria-labelledby={headingId} className="glass p-5">
@@ -115,6 +125,7 @@ export function ExamRow({
       </h3>
       <p className="mt-1 text-sm text-muted">
         Exam {formatDisplayDate(exam.exam_date)} · {exam.daily_minutes} min/day ·{" "}
+        {exam.syllabus_first !== null && "Syllabus added · "}
         {exam.plan_version !== null ? <span className="font-semibold text-accent">Plan ready</span> : "No plan yet"}
       </p>
 
@@ -122,16 +133,25 @@ export function ExamRow({
         <button
           ref={editBtn}
           type="button"
-          className={secondaryBtn}
+          className={style("edit")}
           aria-expanded={panel === "edit"}
           onClick={() => (panel === "edit" ? close("edit") : open("edit"))}
         >
           Set date and topics
         </button>
         <button
-          ref={planBtn}
+          ref={syllabusBtn}
           type="button"
           className={secondaryBtn}
+          aria-expanded={panel === "syllabus"}
+          onClick={() => (panel === "syllabus" ? close("syllabus") : open("syllabus"))}
+        >
+          {exam.syllabus_first !== null ? "Edit syllabus" : "Add your syllabus"}
+        </button>
+        <button
+          ref={planBtn}
+          type="button"
+          className={style("plan")}
           aria-expanded={panel === "plan"}
           onClick={() => (panel === "plan" ? close("plan") : open("plan"))}
         >
@@ -190,6 +210,19 @@ export function ExamRow({
           }}
           onConflict={applyDetails}
           onCancel={() => close("edit")}
+        />
+      )}
+
+      {panel === "syllabus" && details && (
+        <SyllabusPanel
+          key={details.id}
+          exam={details}
+          onSaved={(d) => {
+            applyDetails(d);
+            close("syllabus");
+          }}
+          onConflict={applyDetails}
+          onCancel={() => close("syllabus")}
         />
       )}
 

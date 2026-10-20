@@ -6,6 +6,8 @@ export type ExamSummary = {
   created_at: string;
   updated_at: string;
   plan_version: number | null;
+  /** First syllabus session title, or null when no syllabus was added. */
+  syllabus_first: string | null;
 };
 
 export type ExamDetails = {
@@ -29,7 +31,7 @@ export type ActionResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; code?: "auth" | "conflict" | "not_found" | "limit" | "invalid" | "server"; data?: T };
 
-export const SUMMARY_COLUMNS = "id,title,exam_date,daily_minutes,created_at,updated_at,plan_version:study_plan->version";
+export const SUMMARY_COLUMNS = "id,title,exam_date,daily_minutes,created_at,updated_at,plan_version:study_plan->version,syllabus_first:syllabus_sessions->0->>title";
 export const DETAIL_COLUMNS =
   "id,title,exam_date,daily_minutes,topics,study_plan,updated_at,syllabus_text,syllabus_sessions,scope_end,exam_type,exam_duration_minutes,open_book,professor_note";
 export const MAX_EXAMS = 200;

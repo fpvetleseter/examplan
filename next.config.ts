@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   cacheComponents: true,
   partialPrefetching: true,
+  // Syllabus uploads are capped at 4 MB in the action; this leaves room for multipart overhead
+  // while staying under Vercel's 4.5 MB request body limit.
+  experimental: { serverActions: { bodySizeLimit: "4.4mb" } },
   turbopack: {
     rules: {
       "*.css": {
