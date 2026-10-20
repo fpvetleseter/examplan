@@ -14,7 +14,7 @@ export function LogoutButton() {
         type="submit"
         data-testid="logout"
         aria-busy={pending}
-        className="min-h-11 rounded-lg border border-stone-300 bg-white px-3 text-sm font-medium hover:bg-stone-100"
+        className="btn btn-secondary px-3 text-sm"
       >
         {pending ? "Logging out…" : "Log out"}
       </button>
