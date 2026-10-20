@@ -5,8 +5,7 @@ import type { ExamDetails } from "@/lib/exams/types";
 import { planExplanation } from "@/lib/plan/explain";
 import { parseTopics, validatePlan, type Session } from "@/lib/plan/generate";
 
-const primaryBtn =
-  "min-h-11 rounded-lg bg-emerald-800 px-4 text-sm font-semibold text-white hover:bg-emerald-900 disabled:opacity-60";
+const primaryBtn = "btn btn-primary px-4 text-sm";
 
 function groupByDate(sessions: Session[]) {
   const days: { date: string; sessions: Session[] }[] = [];
@@ -37,11 +36,11 @@ export function PlanView({
 
   if (exam.study_plan == null) {
     return (
-      <section aria-label="Study plan" className="mt-4 border-t border-stone-200 pt-4">
-        <p className="text-sm text-stone-700">
+      <section aria-label="Study plan" className="mt-5 border-t border-[var(--glass-border)] pt-5">
+        <p className="text-sm text-muted">
           No plan yet. It will use your exam date ({formatDisplayDate(exam.exam_date)}), {exam.daily_minutes} minutes a day and{" "}
           {parseTopics(exam.topics).length || "no"} topic{parseTopics(exam.topics).length === 1 ? "" : "s"}.{" "}
-          <button type="button" onClick={onEdit} className="font-medium text-stone-900 underline underline-offset-4">
+          <button type="button" onClick={onEdit} className="link font-medium">
             Change these first
           </button>
         </p>
@@ -53,8 +52,8 @@ export function PlanView({
   const checked = validatePlan(exam.study_plan);
   if (!checked.ok) {
     return (
-      <section aria-label="Study plan" className="mt-4 border-t border-stone-200 pt-4">
-        <p className="text-sm text-amber-800">{checked.error}</p>
+      <section aria-label="Study plan" className="mt-5 border-t border-[var(--glass-border)] pt-5">
+        <p className="notice text-sm">{checked.error}</p>
         <div className="mt-3">{buildButton("Build plan again")}</div>
       </section>
     );
@@ -69,20 +68,20 @@ export function PlanView({
   const topicCount = parseTopics(plan.inputs.topics).length;
 
   return (
-    <section aria-label="Study plan" className="mt-4 border-t border-stone-200 pt-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-stone-500">Template plan</p>
-      <p className="mt-1 text-sm text-stone-700">
+    <section aria-label="Study plan" className="mt-5 border-t border-[var(--glass-border)] pt-5">
+      <p className="font-display text-xl text-ink">Template plan</p>
+      <p className="mt-1 text-sm text-muted">
         Built {formatDisplayDate(plan.inputs.today)} for an exam on {formatDisplayDate(plan.inputs.examDate)}, {plan.inputs.dailyMinutes}{" "}
         min/day, {topicCount === 0 ? "no topics (generic tasks)" : `${topicCount} topic${topicCount === 1 ? "" : "s"}`}.
       </p>
-      {stale && <p className="mt-2 text-sm font-medium text-amber-800">Your exam details changed since this plan was built.</p>}
+      {stale && <p className="notice mt-2 text-sm font-medium">Your exam details changed since this plan was built.</p>}
 
       {next ? (
-        <div className="mt-3 rounded-lg bg-emerald-50 p-3">
-          <p className="text-sm font-semibold text-emerald-900">
+        <div className="mt-4 rounded-[0.625rem] border border-[oklch(0.78_0.08_80/0.5)] bg-[oklch(0.78_0.08_80/0.14)] p-4">
+          <p className="font-display text-lg text-accent">
             {next.date === today ? "Today" : `Next: ${formatDisplayDate(next.date)}`}
           </p>
-          <ul className="mt-1 space-y-1 text-sm text-emerald-950">
+          <ul className="mt-1 space-y-1 text-sm text-ink">
             {next.sessions.map((s, i) => (
               <li key={i} className="break-words [overflow-wrap:anywhere]">
                 {s.minutes} min · {s.task}
@@ -91,25 +90,25 @@ export function PlanView({
           </ul>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-amber-800">All sessions in this plan are in the past. Update the date or build again.</p>
+        <p className="notice mt-3 text-sm">All sessions in this plan are in the past. Update the date or build again.</p>
       )}
 
       {plan.warnings.length > 0 && (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-900">
+        <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-ink marker:text-accent">
           {plan.warnings.map((w) => (
             <li key={w}>{w}</li>
           ))}
         </ul>
       )}
 
-      <ol className="mt-4 divide-y divide-stone-200 rounded-lg border border-stone-200">
+      <ol className="mt-5 divide-y divide-[var(--glass-border)] border-y border-[var(--glass-border)]">
         {days.map((day) => (
-          <li key={day.date} className={`p-3 ${day.date < today ? "opacity-60" : ""}`}>
-            <p className="text-sm font-semibold text-stone-900">{formatDisplayDate(day.date)}</p>
-            <ul className="mt-1 space-y-1 text-sm text-stone-700">
+          <li key={day.date} className="py-3">
+            <p className={`text-sm font-semibold ${day.date < today ? "text-muted" : "text-ink"}`}>{formatDisplayDate(day.date)}</p>
+            <ul className="mt-1 space-y-1 text-sm text-muted">
               {day.sessions.map((s, i) => (
                 <li key={i} className="break-words [overflow-wrap:anywhere]">
-                  <span className="font-medium text-stone-900">{s.minutes} min</span> · {s.task}
+                  <span className="font-semibold text-ink">{s.minutes} min</span> · {s.task}
                 </li>
               ))}
             </ul>
@@ -117,7 +116,7 @@ export function PlanView({
         ))}
       </ol>
 
-      <p className="mt-3 text-sm text-stone-600">{planExplanation(topicCount)}</p>
+      <p className="mt-4 text-sm leading-relaxed text-muted">{planExplanation(topicCount)}</p>
       <div className="mt-3">{buildButton("Rebuild plan")}</div>
     </section>
   );

@@ -111,13 +111,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
 
   const errorId = `${id}-error`;
-  const field =
-    "mt-1 block min-h-12 w-full rounded-lg border border-stone-300 bg-white px-3 text-base text-stone-900 aria-invalid:border-red-600";
+  const field = "field mt-1";
 
   return (
     <form onSubmit={onSubmit} noValidate className="mt-6 space-y-4" aria-describedby={error ? errorId : undefined}>
       <div>
-        <label htmlFor={`${id}-email`} className="block text-sm font-medium text-stone-900">
+        <label htmlFor={`${id}-email`} className="block text-sm font-semibold text-ink">
           Email
         </label>
         <input
@@ -135,7 +134,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         />
       </div>
       <div>
-        <label htmlFor={`${id}-password`} className="block text-sm font-medium text-stone-900">
+        <label htmlFor={`${id}-password`} className="block text-sm font-semibold text-ink">
           Password
         </label>
         <input
@@ -152,13 +151,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
           className={field}
         />
         {mode === "signup" && (
-          <p id={`${id}-password-hint`} className="mt-1 text-sm text-stone-600">
+          <p id={`${id}-password-hint`} className="mt-1 text-sm text-muted">
             At least {PASSWORD_MIN} characters. A longer passphrase is safer.
           </p>
         )}
       </div>
       {error && (
-        <p id={errorId} role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p id={errorId} role="alert" className="alert text-sm">
           {error}
         </p>
       )}
@@ -167,13 +166,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
         data-testid={`${mode}-submit`}
         disabled={pending}
         aria-busy={pending}
-        className="min-h-12 w-full rounded-lg bg-emerald-800 px-4 text-base font-semibold text-white hover:bg-emerald-900 disabled:opacity-60"
+        className="btn btn-primary min-h-12 w-full text-base"
       >
         {pending ? t.pending : t.submit}
       </button>
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-muted">
         {t.switchText}{" "}
-        <Link href={t.switchHref} className="font-medium text-stone-900 underline underline-offset-4">
+        <Link href={t.switchHref} className="link font-medium">
           {t.switchLink}
         </Link>
       </p>

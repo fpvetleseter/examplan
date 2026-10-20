@@ -23,8 +23,7 @@ function toSummary(d: ExamDetails, prev: ExamSummary): ExamSummary {
   };
 }
 
-const secondaryBtn =
-  "min-h-11 rounded-lg border border-stone-300 bg-white px-3 text-sm font-medium text-stone-900 hover:bg-stone-100 disabled:opacity-60";
+const secondaryBtn = "btn btn-secondary px-3 text-sm";
 
 export function ExamRow({
   exam,
@@ -110,13 +109,13 @@ export function ExamRow({
   const headingId = `exam-${exam.id}`;
 
   return (
-    <li data-testid="core-item" aria-labelledby={headingId} className="rounded-xl border border-stone-200 bg-white p-4">
-      <h3 id={headingId} className="break-words text-lg font-semibold text-stone-900 [overflow-wrap:anywhere]">
+    <li data-testid="core-item" aria-labelledby={headingId} className="glass p-5">
+      <h3 id={headingId} className="break-words text-xl text-ink [overflow-wrap:anywhere]">
         {exam.title}
       </h3>
-      <p className="mt-1 text-sm text-stone-600">
+      <p className="mt-1 text-sm text-muted">
         Exam {formatDisplayDate(exam.exam_date)} · {exam.daily_minutes} min/day ·{" "}
-        {exam.plan_version !== null ? <span className="font-medium text-emerald-800">Plan ready</span> : "No plan yet"}
+        {exam.plan_version !== null ? <span className="font-semibold text-accent">Plan ready</span> : "No plan yet"}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -139,21 +138,21 @@ export function ExamRow({
           {panel === "plan" ? "Hide study plan" : exam.plan_version !== null ? "Open study plan" : "Build study plan"}
         </button>
         {!confirmDelete && (
-          <button type="button" className={`${secondaryBtn} text-red-800`} onClick={() => setConfirmDelete(true)}>
+          <button type="button" className={`${secondaryBtn} text-danger`} onClick={() => setConfirmDelete(true)}>
             Delete
           </button>
         )}
       </div>
 
       {confirmDelete && (
-        <div role="group" aria-label="Confirm delete" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
-          <p className="break-words text-sm text-red-900 [overflow-wrap:anywhere]">Delete “{exam.title}” and its plan? This can&apos;t be undone.</p>
+        <div role="group" aria-label="Confirm delete" className="alert mt-3 p-3">
+          <p className="break-words text-sm text-ink [overflow-wrap:anywhere]">Delete “{exam.title}” and its plan? This can&apos;t be undone.</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
               disabled={deleting}
               onClick={remove}
-              className="min-h-11 rounded-lg bg-red-700 px-3 text-sm font-semibold text-white disabled:opacity-60"
+              className="btn btn-danger px-3 text-sm"
             >
               {deleting ? "Deleting…" : "Yes, delete"}
             </button>
@@ -165,10 +164,10 @@ export function ExamRow({
       )}
 
       {notice && (
-        <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="alert mt-3 text-sm">
           {notice.message}{" "}
           {notice.auth && (
-            <Link href="/login" className="font-semibold underline">
+            <Link href="/login" className="link font-semibold">
               Log in
             </Link>
           )}
@@ -176,7 +175,7 @@ export function ExamRow({
       )}
 
       {panel && loading && !details && (
-        <p role="status" className="mt-3 text-sm text-stone-600">
+        <p role="status" className="mt-3 text-sm text-muted">
           Loading…
         </p>
       )}

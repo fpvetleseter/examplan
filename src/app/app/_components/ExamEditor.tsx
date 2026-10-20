@@ -67,25 +67,25 @@ export function ExamEditor({
   }
 
   const planChanges = examDate !== exam.exam_date || minutes !== String(exam.daily_minutes) || topics !== exam.topics;
-  const field = "mt-1 block min-h-12 w-full rounded-lg border border-stone-300 bg-white px-3 text-base text-stone-900";
+  const field = "field mt-1";
 
   return (
-    <form onSubmit={onSubmit} noValidate className="mt-4 space-y-4 border-t border-stone-200 pt-4" aria-label="Exam details">
+    <form onSubmit={onSubmit} noValidate className="mt-5 space-y-4 border-t border-[var(--glass-border)] pt-5" aria-label="Exam details">
       <div>
-        <label htmlFor={`${id}-title`} className="block text-sm font-medium text-stone-900">
+        <label htmlFor={`${id}-title`} className="block text-sm font-semibold text-ink">
           Exam name
         </label>
         <input id={`${id}-title`} type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={field} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor={`${id}-date`} className="block text-sm font-medium text-stone-900">
+          <label htmlFor={`${id}-date`} className="block text-sm font-semibold text-ink">
             Exam date
           </label>
           <input id={`${id}-date`} type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} className={field} />
         </div>
         <div>
-          <label htmlFor={`${id}-minutes`} className="block text-sm font-medium text-stone-900">
+          <label htmlFor={`${id}-minutes`} className="block text-sm font-semibold text-ink">
             Study minutes per day
           </label>
           <input
@@ -100,14 +100,14 @@ export function ExamEditor({
             aria-describedby={`${id}-minutes-hint`}
             className={field}
           />
-          <p id={`${id}-minutes-hint`} className="mt-1 text-sm text-stone-600">
+          <p id={`${id}-minutes-hint`} className="mt-1 text-sm text-muted">
             {MINUTES_MIN}–{MINUTES_MAX} minutes.
           </p>
         </div>
       </div>
       <div>
-        <label htmlFor={`${id}-topics`} className="block text-sm font-medium text-stone-900">
-          Topics <span className="font-normal text-stone-600">(optional, one per line, in the order you want to study them)</span>
+        <label htmlFor={`${id}-topics`} className="block text-sm font-semibold text-ink">
+          Topics <span className="font-normal text-muted">(optional, one per line, in the order you want to study them)</span>
         </label>
         <textarea
           id={`${id}-topics`}
@@ -116,20 +116,20 @@ export function ExamEditor({
           onChange={(e) => setTopics(e.target.value)}
           placeholder={"Mens rea\nActus reus\nDefences"}
           aria-describedby={`${id}-topics-hint`}
-          className="mt-1 block w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-base text-stone-900"
+          className="field mt-1"
         />
-        <p id={`${id}-topics-hint`} className="mt-1 text-sm text-stone-600">
+        <p id={`${id}-topics-hint`} className="mt-1 text-sm text-muted">
           Up to 60 topics, {TOPICS_MAX.toLocaleString("en")} characters in total.
         </p>
       </div>
       {planChanges && exam.study_plan != null && (
-        <p className="text-sm text-amber-800">Saving these changes clears the current plan. Build it again afterwards.</p>
+        <p className="notice text-sm">Saving these changes clears the current plan. Build it again afterwards.</p>
       )}
       {error && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p role="alert" className="alert text-sm">
           {error.message}{" "}
           {error.auth && (
-            <Link href="/login" className="font-semibold underline">
+            <Link href="/login" className="link font-semibold">
               Log in
             </Link>
           )}
@@ -140,7 +140,7 @@ export function ExamEditor({
           type="submit"
           disabled={pending}
           aria-busy={pending}
-          className="min-h-11 rounded-lg bg-emerald-800 px-4 text-sm font-semibold text-white hover:bg-emerald-900 disabled:opacity-60"
+          className="btn btn-primary px-4 text-sm"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
@@ -148,7 +148,7 @@ export function ExamEditor({
           type="button"
           onClick={cancel}
           disabled={pending}
-          className="min-h-11 rounded-lg border border-stone-300 bg-white px-4 text-sm font-medium text-stone-900 hover:bg-stone-100"
+          className="btn btn-secondary px-4 text-sm"
         >
           Cancel
         </button>
