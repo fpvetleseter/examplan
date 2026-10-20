@@ -57,3 +57,8 @@ Evidence log entries need date, environment, exact command/action, outcome and u
 - Production bundle scan (61 responses, 43 static chunks, signed-in /app with plan and edit panels): only the Supabase project URL and the `sb_publishable_` key; no JWTs, `sb_secret_`, `service_role`, AI/cloud/GitHub/Stripe keys, private keys or other env names.
 - Repo https://github.com/fpvetleseter/examplan opens without login (HTTP 200, API `"visibility": "public"`). README rewritten from the starter-kit text to describe the shipped app and how to run it; docs/SUBMISSION.md filled with verified facts, problem evidence and real user count left as [OWNER TO FILL].
 - Still owner work (PRD §11): classmate validation evidence, real signups and uncoached observations, Deliver submission.
+
+### 2026-10-20 · production URL changed to https://ferdinandvetleseter.vercel.app
+- Vercel project renamed (dashboard project name now "ferdinandvetleseter") and `ferdinandvetleseter.vercel.app` added as a production domain; `/` serves the app (HTTP 200). `examplan-kappa.vercel.app` remains assigned to the project and still serves, so old links keep working.
+- README.md and docs/SUBMISSION.md "Live app" lines updated to the new URL.
+- `BASE_URL=https://ferdinandvetleseter.vercel.app node scripts/verify.mjs` with fresh QA emails: exit 0. Scaffold PASS; lint, typecheck, unit (30 tests, 4 files), build pass; `playwright test` 1 passed (12.9s); `node tests/rls.mjs` "PASS: direct user-scoped RLS boundary checks". Note for fresh clones: run `npm run build` once before `npm run typecheck` so Next generates `next-env.d.ts` and route types.
