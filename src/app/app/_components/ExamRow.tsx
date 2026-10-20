@@ -31,10 +31,12 @@ const primaryBtn = "btn btn-primary px-3 text-sm";
 
 export function ExamRow({
   exam,
+  aiEnabled,
   onChange,
   onDeleted,
 }: {
   exam: ExamSummary;
+  aiEnabled: boolean;
   onChange: (exam: ExamSummary) => void;
   onDeleted: (id: string) => void;
 }) {
@@ -217,6 +219,7 @@ export function ExamRow({
         <SyllabusPanel
           key={details.id}
           exam={details}
+          aiEnabled={aiEnabled}
           onSaved={(d) => {
             applyDetails(d);
             close("syllabus");

@@ -8,7 +8,7 @@ import type { ExamSummary } from "@/lib/exams/types";
 import { createExam } from "../actions";
 import { ExamRow } from "./ExamRow";
 
-export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
+export function ExamBoard({ initialExams, aiEnabled }: { initialExams: ExamSummary[]; aiEnabled: boolean }) {
   const [exams, setExams] = useState(initialExams);
   const [title, setTitle] = useState("");
   const [pending, setPending] = useState(false);
@@ -114,6 +114,7 @@ export function ExamBoard({ initialExams }: { initialExams: ExamSummary[] }) {
             <ExamRow
               key={exam.id}
               exam={exam}
+              aiEnabled={aiEnabled}
               onChange={(next) => setExams((list) => list.map((e) => (e.id === next.id ? next : e)))}
               onDeleted={(id) => {
                 setExams((list) => list.filter((e) => e.id !== id));

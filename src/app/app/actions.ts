@@ -6,7 +6,7 @@ import { isUuid, validateExamUpdate, validateNewExam } from "@/lib/exams/validat
 import { buildPlan } from "@/lib/plan/generate";
 import { planInputsFromExam, syllabusPlanInput } from "@/lib/plan/inputs";
 import { extractSyllabusText } from "@/lib/syllabus/extract";
-import { parseSyllabus, type ParseResult } from "@/lib/syllabus/parse";
+import { parseSyllabusWithFallback, reserveAiCall, type SyllabusParse } from "@/lib/syllabus/ai";
 import { validateSyllabus } from "@/lib/syllabus/validation";
 import { getVerifiedUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -108,13 +108,21 @@ export async function updateExam(input: unknown, expectedUpdatedAt: unknown): Pr
   }
 }
 
-/** Extracts text from an uploaded syllabus and parses it. Nothing is stored until saveSyllabus. */
-export async function readSyllabusFile(form: FormData): Promise<ActionResult<{ text: string } & ParseResult>> {
+/**
+ * Extracts text from an uploaded syllabus, runs the built-in parser and, when GEMINI_API_KEY is set,
+ * one rate-limited Gemini call. Nothing is stored on the exam until saveSyllabus. Never logs the text.
+ */
+export async function readSyllabusFile(form: FormData): Promise<ActionResult<{ text: string } & SyllabusParse>> {
   try {
-    if (!(await getVerifiedUser())) return AUTH_ERROR;
+    const ctx = await authed();
+    if (!ctx) return AUTH_ERROR;
     const text = await extractSyllabusText(form.get("file"));
     if (!text.ok) return { ok: false, code: "invalid", error: text.error };
-    return { ok: true, data: { text: text.value, ...parseSyllabus(text.value) } };
+    const parsed = await parseSyllabusWithFallback(text.value, {
+      apiKey: process.env.GEMINI_API_KEY || undefined,
+      reserve: () => reserveAiCall(ctx.supabase),
+    });
+    return { ok: true, data: { text: text.value, ...parsed } };
   } catch {
     return { ok: false, code: "server", error: "We couldn't read this file. Try again, or paste the text instead." };
   }

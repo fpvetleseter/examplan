@@ -14,6 +14,7 @@ import {
   readSessions,
   validateSyllabus,
 } from "@/lib/syllabus/validation";
+import type { SyllabusParse } from "@/lib/syllabus/ai";
 import { readSyllabusFile, saveSyllabus } from "../actions";
 
 type Row = { key: number; title: string; shaky: boolean };
@@ -37,11 +38,13 @@ function foundMessage(result: ParseResult): string {
 
 export function SyllabusPanel({
   exam,
+  aiEnabled,
   onSaved,
   onConflict,
   onCancel,
 }: {
   exam: ExamDetails;
+  aiEnabled: boolean;
   onSaved: (exam: ExamDetails) => void;
   onConflict: (exam: ExamDetails) => void;
   onCancel: () => void;
@@ -109,6 +112,34 @@ export function SyllabusPanel({
     setFound(foundMessage(result));
   }
 
+  /** Upload results: same editable list, plus exam details Gemini found. Nothing is saved until "Save syllabus". */
+  function applyUpload(result: SyllabusParse) {
+    applyParsed(result);
+    const info = result.exam;
+    const prefilled: string[] = [];
+    if (info && result.sessions.length > 0) {
+      if (info.scopeEnd !== null && info.scopeEnd <= result.sessions.length) {
+        setScopeEnd(String(info.scopeEnd));
+        prefilled.push("scope");
+      }
+      if (info.examType) {
+        setExamType(info.examType);
+        prefilled.push("exam type");
+      }
+      if (info.durationMinutes !== null) {
+        setDuration(String(info.durationMinutes));
+        prefilled.push("duration");
+      }
+      if (info.openBook !== null) {
+        setBook(info.openBook ? "open" : "closed");
+        prefilled.push("book");
+      }
+    }
+    const details = prefilled.length > 0 ? ` Prefilled from the syllabus: ${prefilled.join(", ")}.` : "";
+    const confirm = result.sessions.length > 0 ? " Nothing is saved until you press Save syllabus." : "";
+    setFound(`${result.notice ? `${result.notice} ` : ""}${foundMessage(result)}${details}${confirm}`);
+  }
+
   function findSessions() {
     setError(null);
     if (rows.length > 0 && !window.confirm("Replace your current session list with the sessions found in this text?")) return;
@@ -141,7 +172,7 @@ export function SyllabusPanel({
         return;
       }
       setText(result.data.text);
-      applyParsed(result.data);
+      applyUpload(result.data);
     } catch {
       setError({ message: "We couldn't upload this file. Check your connection, or paste the text instead." });
     } finally {
@@ -274,6 +305,12 @@ export function SyllabusPanel({
             Up to 4 MB. Scanned PDFs have no text to read.
           </span>
         </div>
+        {aiEnabled && (
+          <p className="mt-2 text-sm text-muted">
+            Uploaded files: the text is sent to Google (Gemini API) to find sessions and exam details, up to 5 files an hour; otherwise
+            the built-in parser reads it. Don&apos;t upload private material. Pasted text stays with the built-in parser.
+          </p>
+        )}
         <p role="status" aria-live="polite" className="mt-2 text-sm text-ink">
           {found}
         </p>

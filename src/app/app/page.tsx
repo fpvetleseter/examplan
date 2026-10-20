@@ -12,7 +12,7 @@ async function Exams() {
   const result = await listExams();
   if (result.status === "signed_out") redirect("/login");
   if (result.status === "error") return <RetryList />;
-  return <ExamBoard initialExams={result.exams} />;
+  return <ExamBoard initialExams={result.exams} aiEnabled={Boolean(process.env.GEMINI_API_KEY)} />;
 }
 
 export default function AppPage() {

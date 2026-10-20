@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
-    "test:rls": "node tests/rls.mjs && node tests/rls-syllabus.mjs"
+    "test:rls": "node tests/rls.mjs && node tests/rls-syllabus.mjs && node tests/rls-ai.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
