@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Backdrop } from "@/components/Backdrop";
 import { getVerifiedUser } from "@/lib/supabase/auth";
 
-const primary =
-  "inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-800 px-5 text-base font-semibold text-white hover:bg-emerald-900";
+const primary = "btn btn-primary min-h-12 px-6 text-base";
 
 function SignupCta() {
   return (
@@ -11,9 +11,9 @@ function SignupCta() {
       <Link href="/signup" className={primary}>
         Sign up free
       </Link>
-      <p className="text-sm text-stone-600">
+      <p className="text-sm text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-stone-900 underline underline-offset-4">
+        <Link href="/login" className="link font-medium">
           Log in
         </Link>
       </p>
@@ -31,68 +31,87 @@ async function HeroAction() {
   );
 }
 
+const steps = [
+  ["Save an exam", "Just the name is enough. We start you with a date in 14 days and 30 minutes a day."],
+  ["Set date and topics", "Change the date and daily minutes, and list your topics one per line."],
+  ["Build a study plan", "Get a day-by-day template with a final review day. Rebuild it whenever things change."],
+];
+
 export default function Home() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-16">
-      <p className="text-sm font-medium uppercase tracking-wide text-emerald-800">For IE law and international relations students</p>
-      <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-stone-900 sm:text-5xl">
-        Turn each exam into a daily study plan you can actually finish.
-      </h1>
-      <p className="mt-4 max-w-xl text-lg text-stone-700">
-        Midterms, unread IR readings and a part-time job? Save your exams, set the date, your daily study time and topics, and
-        ExamPlan lays out what to study each day until the exam. No uploads, no onboarding, no AI key.
-      </p>
-      <div className="mt-8">
-        <Suspense fallback={<SignupCta />}>
-          <HeroAction />
-        </Suspense>
-      </div>
+    <>
+      <Backdrop eager />
+      <main className="mx-auto w-full max-w-3xl px-4 pt-14 pb-16 sm:pt-24">
+        <p className="font-medium text-accent">For IE law and international relations students</p>
+        <h1 className="mt-4 max-w-2xl text-[2.5rem] leading-[1.08] text-ink sm:text-6xl">
+          Turn each exam into a daily study plan you can actually finish.
+        </h1>
 
-      <section aria-labelledby="how" className="mt-14">
-        <h2 id="how" className="text-xl font-semibold text-stone-900">
-          How it works
-        </h2>
-        <ol className="mt-4 grid gap-3 sm:grid-cols-3">
-          {[
-            ["Save an exam", "Just the name is enough. We start you with a date in 14 days and 30 minutes a day."],
-            ["Set date and topics", "Change the date and daily minutes, and list your topics one per line."],
-            ["Build a study plan", "Get a day-by-day template with a final review day. Rebuild it whenever things change."],
-          ].map(([title, body], i) => (
-            <li key={title} className="rounded-xl border border-stone-200 bg-white p-4">
-              <p className="text-sm font-semibold text-emerald-800">Step {i + 1}</p>
-              <p className="mt-1 font-semibold text-stone-900">{title}</p>
-              <p className="mt-1 text-sm text-stone-600">{body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section aria-labelledby="example" className="mt-12">
-        <h2 id="example" className="text-xl font-semibold text-stone-900">
-          What a plan looks like <span className="text-sm font-normal text-stone-500">(example, not real data)</span>
-        </h2>
-        <div className="mt-4 rounded-xl border border-dashed border-stone-300 bg-white p-4">
-          <p className="font-semibold text-stone-900">Example: Criminal Law midterm · 45 min/day</p>
-          <ul className="mt-3 space-y-2 text-sm text-stone-700">
-            <li>
-              <span className="font-medium text-stone-900">Mon:</span> Learn: Mens rea. Write a one-page summary in your own words.
-            </li>
-            <li>
-              <span className="font-medium text-stone-900">Tue:</span> Practise: Mens rea. Answer questions from memory, then fix gaps.
-            </li>
-            <li>
-              <span className="font-medium text-stone-900">Wed:</span> Learn: Actus reus. Write a one-page summary in your own words.
-            </li>
-            <li>
-              <span className="font-medium text-stone-900">Day before:</span> Final review across all topics.
-            </li>
-          </ul>
+        <div className="glass mt-10 max-w-2xl p-6 sm:p-8">
+          <p className="text-lg leading-relaxed text-ink">
+            Midterms, unread IR readings and a part-time job? Save your exams, set the date, your daily study time and topics, and
+            ExamPlan lays out what to study each day until the exam. No uploads, no onboarding, no AI key.
+          </p>
+          <div className="mt-6">
+            <Suspense fallback={<SignupCta />}>
+              <HeroAction />
+            </Suspense>
+          </div>
         </div>
-        <p className="mt-3 text-sm text-stone-600">
-          Plans are a simple, transparent template built from what you enter. ExamPlan doesn&apos;t know your professor or readings, and it
-          won&apos;t pretend to.
-        </p>
-      </section>
-    </main>
+
+        <section aria-labelledby="how" className="mt-20">
+          <h2 id="how" className="text-3xl text-ink">
+            How it works
+          </h2>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+            {steps.map(([title, body], i) => (
+              <li key={title} className="glass p-5">
+                <p className="font-display text-3xl leading-none text-accent" aria-hidden>
+                  {i + 1}
+                </p>
+                <p className="mt-3 font-semibold text-ink">
+                  <span className="sr-only">Step {i + 1}: </span>
+                  {title}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section aria-labelledby="example" className="mt-20">
+          <h2 id="example" className="text-3xl text-ink">
+            What a plan looks like <span className="font-serif text-base text-muted">(example, not real data)</span>
+          </h2>
+          <div className="glass mt-6 p-5 sm:p-6">
+            <p className="font-semibold text-ink">Example: Criminal Law midterm · 45 min/day</p>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
+              <li>
+                <span className="font-semibold text-ink">Mon:</span> Learn: Mens rea. Write a one-page summary in your own words.
+              </li>
+              <li>
+                <span className="font-semibold text-ink">Tue:</span> Practise: Mens rea. Answer questions from memory, then fix gaps.
+              </li>
+              <li>
+                <span className="font-semibold text-ink">Wed:</span> Learn: Actus reus. Write a one-page summary in your own words.
+              </li>
+              <li>
+                <span className="font-semibold text-ink">Day before:</span> Final review across all topics.
+              </li>
+            </ul>
+          </div>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">
+            Plans are a simple, transparent template built from what you enter. ExamPlan doesn&apos;t know your professor or readings, and it
+            won&apos;t pretend to.
+          </p>
+        </section>
+      </main>
+      <footer className="mt-auto border-t border-[var(--glass-border)] bg-[oklch(0.12_0.02_142/0.7)]">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-4 py-6 text-sm text-muted">
+          <span className="font-display text-base text-ink">ExamPlan</span>
+          <span>Daily study plans for IE law and IR students.</span>
+        </div>
+      </footer>
+    </>
   );
 }
