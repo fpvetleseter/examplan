@@ -33,7 +33,7 @@ Annoyance (1-5): 4 for all five interviewees. Last time it happened: this week, 
 
 ## Real signups
 
-7 of 7 classmates I set up accounts for used the app (100%), and I watched them use it in person. Supabase auth logs did not record their sign-ins because of a Supabase issue on Oct 21, so the evidence is my direct observation, not the database.
+7 of 7 classmates that signed up used the app (100%), and I watched them use it in person. Supabase auth logs did not record their sign-ins because of a Supabase issue on Oct 21, so the evidence is my direct observation, not the database.
 
 ## Uncoached first-visit observations (Oct 20, 2 people: E and B)
 
@@ -46,4 +46,4 @@ Annoyance (1-5): 4 for all five interviewees. Last time it happened: this week, 
 
 - One-liner: ExamPlan helps IE law and IR students turn exams into daily study plans so they can stop last-minute cramming.
 - Main save action: add an exam (name only works); optionally paste or upload the syllabus, confirm the parsed session list, build the day-by-day plan. Saved privately per user (RLS, owner-only).
-- Private data choice: syllabus text is stored privately on the user's own exam row, never shared between users, and is sent to Google (Gemini free tier) only to find sessions, with a notice in the UI not to paste private material.
+- Private data choice: syllabus text is stored privately on the user's own exam row, never shared between users. Uploaded syllabus text is optionally sent to Google's Gemini API (free tier) to find sessions, with a notice in the UI not to upload private material; pasted text stays with the built-in parser.
