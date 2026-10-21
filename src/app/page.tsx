@@ -42,15 +42,12 @@ export default function Home() {
     <>
       <Backdrop eager />
       <main className="mx-auto w-full max-w-3xl px-4 pt-14 pb-16 sm:pt-24">
-        <p className="font-medium text-accent">For IE law and international relations students</p>
-        <h1 className="mt-4 max-w-2xl text-[2.5rem] leading-[1.08] text-ink sm:text-6xl">
-          Turn each exam into a daily study plan you can actually finish.
-        </h1>
+        <h1 className="max-w-2xl text-[2.5rem] leading-[1.08] text-ink sm:text-6xl">Turn your exam dates into a daily study plan.</h1>
 
-        <div className="glass mt-10 max-w-2xl p-6 sm:p-8">
+        <div className="glass mt-8 max-w-2xl p-6 sm:p-8">
           <p className="text-lg leading-relaxed text-ink">
-            Midterms, unread IR readings and a part-time job? Save your exams, set the date and your daily study time, add your
-            syllabus or a list of topics, and ExamPlan lays out what to study each day until the exam. No onboarding, no AI key.
+            Built for law and international relations students. Add your exams and your course syllabus, and ExamPlan shows you
+            what to study each day until the exam.
           </p>
           <div className="mt-6">
             <Suspense fallback={<SignupCta />}>
